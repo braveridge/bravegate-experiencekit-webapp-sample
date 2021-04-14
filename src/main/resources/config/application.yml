@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/sensor-sample?characterEncoding=UTF-8&useServerPrepStmts=true&useSSL=false
+    username: root
+    password:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jpa:
+      database: MYSQL
+      hibernate:
+        ddl-auto : update
+
+bravegate:
+  api-url:
+  authkey-id:
+  authkey-secret:
