@@ -7,13 +7,13 @@ data class MoveDetectionEntity(
     val id: Long,
     val routerId: String,
     val deviceId: String,
-    val deviceRssi: String,
+    val deviceRssi:  Int,
     val sensorId: String,
     val isDetected: Boolean,
-    val count: Int,
+    val count: Long,
     val uplinkId: String,
     val date: LocalDateTime,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime? = null
 ) : SensorDataEntityInterface {
     override fun sensorDeviceId() = deviceId
     override fun sensorId() = sensorId

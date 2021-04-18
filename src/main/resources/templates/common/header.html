@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+  <header class="app-header navbar" th:fragment="header">
+    <a class="navbar-brand" href="/">
+      <img class="navbar-brand-full" th:src="'/assets/img/logo.png'" width="120" alt="Braveridge">
+      <img class="navbar-brand-minimized" src="/assets/img/logo-mini.png" width="30" height="30" alt="Braveridge">
+    </a>
+    <ul class="nav navbar-nav ml-auto">
+      <li class="nav-item px-3">
+        <a class="nav-link" data-toggle="dropdown" href="#" role="button">
+          管理
+        </a>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="/router">ルーター管理</a>
+          <a class="dropdown-item" href="/application">アプリケーション管理</a>
+          <a class="dropdown-item" href="/device">デバイス管理</a>
+        </div>
+      </li>
+    </ul>
+  </header>
+</body>
+</html>

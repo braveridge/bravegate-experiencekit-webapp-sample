@@ -1,0 +1,24 @@
+{
+  "application": {
+    "application_id": "AP0123456789abcdefghijkABCDEFGHIJK",
+    "name": "Test Webhook"
+  },
+  "router": {
+    "router_id": "000002b9",
+    "imsi": "440000000000001",
+    "rssi": -50,
+    "battery": 75,
+    "fw_version": "0.0.1"
+  },
+  "device": {
+    "device_id": "2468800101000022",
+    "sensor_id": "0005",
+    "sensor_name": "Humidity sensor",
+    "rssi": -30,
+    "data": {
+      "humidity": 70.9
+    }
+  },
+  "uplink_id": "1111aaaa-4222-bbbb-3333-cccc4444dddd",
+  "date": "2021-02-25T19:59:15+09:00"
+}

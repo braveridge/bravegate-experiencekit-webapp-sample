@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head>
+    <title>デバイス管理</title>
+</head>
+<body class="app header-fixed aside-menu-fixed sidebar-lg-show">
+<div layout:fragment="contents">
+    <div class="app-body">
+        <div th:replace="common/sidebar::sidebar"></div>
+        <main class="main">
+            <!-- Breadcrumb-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">デバイス管理</li>
+            </ol>
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>デバイス一覧</strong>
+                        <div class="float-right">
+                            <a href="/device/create">
+                                <button class="btn btn-outline-primary" type="button">新規登録</button>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <table class="table table-responsive-sm table-bordered table-striped table-sm">
+                            <thead>
+                            <tr>
+                                <th>デバイスID</th>
+                                <th>名前</th>
+                                <th>グループID</th>
+                                <th>センサー</th>
+                                <th>登録日時 / 更新日時</th>
+                                <th style="width: 150px;"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="device : ${deviceList}">
+                                    <td th:text="${device.deviceId}"></td>
+                                    <td th:text="${device.name}"></td>
+                                    <td th:text="${device.groupId}"></td>
+                                    <td>
+                                        <ul>
+                                            <li th:each="sensor : ${device.sensors}" th:text="${sensor.sensorId + '：' + sensor.name}"></li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <span th:text="${#temporals.format(device.createdAt, 'yyyy/MM/dd HH:mm:ss')}"></span><br>
+                                        <span th:text="${#temporals.format(device.updatedAt, 'yyyy/MM/dd HH:mm:ss')}"></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a th:href="${'/device/edit/' + device.deviceId}">
+                                            <button class="btn btn-ghost-success" type="button">編集</button>
+                                        </a>
+                                        <button class="btn btn-ghost-danger" type="button" name="delete-btn" th:data-device-id="${device.deviceId}">削除</button>
+                                        <div class="dropdown">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuUplink" data-toggle="dropdown" aria-expanded="false">
+                                                アップリンク設定
+                                            </button>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuUplink">
+                                                <button class="dropdown-item uplink-item" data-uplinkl-interval = "at-once" th:data-device-id="${device.deviceId}" type="button">即時アップリンク要求</button>
+                                                <button class="dropdown-item uplink-item" data-uplinkl-interval = "1min" th:data-device-id="${device.deviceId}" type="button">1分間隔</button>
+                                                <button class="dropdown-item uplink-item" data-uplinkl-interval = "5min" th:data-device-id="${device.deviceId}" type="button">5分間隔(デフォルト)</button>
+                                                <button class="dropdown-item uplink-item" data-uplinkl-interval = "10min" th:data-device-id="${device.deviceId}" type="button">10分間隔</button>
+                                                <button class="dropdown-item uplink-item" data-uplinkl-interval = "1hour" th:data-device-id="${device.deviceId}" type="button">1時間間隔</button>
+                                                <button class="dropdown-item uplink-item" data-uplinkl-interval = "none" th:data-device-id="${device.deviceId}" type="button">定期アップリンクOFF</button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 更新完了モーダル -->
+    <div th:replace="common/fragment::modal('successModal', 'success', '削除完了', 'デバイス情報を削除しました')"></div>
+
+    <!-- エラーモーダル -->
+    <div th:replace="common/fragment::modal('errorModal', 'danger', '入力エラー', '入力内容を確認してください')"></div>
+
+    <!-- 確認モーダル -->
+    <div th:replace="common/fragment::confirmModal('confirmModal', 'warning', '削除確認', '削除してもよろしいですか？', 'danger', '削除する')"></div>
+
+    <!-- 送信完了モーダル -->
+    <div th:replace="common/fragment::modal('successDownlinkModal', 'success', '送信完了', 'アップリンク設定を更新しました')"></div>
+
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        let selectedDeviceId = undefined
+        let sensorId = '0004' // 体感キット（TETRA）はセンサーごとにアップリンク設定ができないため、センサーID固定で送信する。
+        // reload at confirmed
+        $('#successModal').on('hidden.bs.modal', () => {
+            location.href = '/device'
+        })
+
+        // click confirm button
+        $('#confirmModal [name=modal-ok]').click(() => {
+            if (selectedDeviceId === undefined) {
+                return
+            }
+
+            $.ajax({
+                type: 'post',
+                url: '/device/delete/' + selectedDeviceId,
+                contentType: 'application/json',
+                dataType: 'json',
+                success: data => {
+                    console.log('data', data)
+                    if (data) {
+                        $('#successModal').modal()
+                    } else {
+                        $('#errorModal').modal()
+                    }
+                },
+                error: res => {
+                    const error = res.responseJSON.error
+                    console.log('error', error)
+                    $('#errorModal').modal()
+                },
+                complete: () => {
+                    selectedDeviceId = undefined
+                }
+            })
+        })
+
+        // click uplink setting
+        $('.uplink-item').click(e => {
+            selectedDeviceId = $(e.target).data('device-id')
+            let interval = $(e.target).data('uplinkl-interval')
+            console.log(interval)
+            let command = 'SET_UPLINK_INTERVAL'
+            let param =  {}
+            switch(interval){
+                case 'at-once':
+                    command = 'SEND_DATA_AT_ONCE'
+                    break;
+                case '1min':
+                    param['interval'] = 60
+                    break;
+                case '5min':
+                    param['interval'] = 300
+                    break;
+                case '10min':
+                    param['interval'] = 600
+                    break;
+                case '1hour':
+                    param['interval'] = 3600
+                    break;
+                case 'none':
+                    command = 'SET_UPLINK_DISABLE'
+                    break;
+            }
+            sendCommand(command, sensorId, param)
+        })
+
+        // click delete button
+        $('[name=delete-btn]').click(e => {
+            selectedDeviceId = $(e.target).data('device-id')
+            $('#confirmModal').modal()
+        })
+
+        const sendCommand = (command, sensorId, params = {}) => {
+            params['sensor_id'] = sensorId
+            if (selectedDeviceId === undefined) {
+                return
+            }
+            console.log(sensorId)
+            console.log(selectedDeviceId)
+            console.log(command)
+
+            sendCommandToDevice(selectedDeviceId, command, params).then((data) => {
+                $('#successDownlinkModal').modal()
+            }, (error) => {
+                $('#errorModal').modal()
+            })
+        }
+    </script>
+</div>
+
+</body>
+</html>

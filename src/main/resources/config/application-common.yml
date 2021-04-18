@@ -1,0 +1,8 @@
+bravegate:
+  api-url: https://api.braveridge.io/
+  authkey-id:
+  authkey-secret:
+
+spring:
+  jackson:
+    time-zone: Asia/Tokyo

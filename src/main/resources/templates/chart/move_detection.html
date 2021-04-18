@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{common/layout}">
+<head>
+    <title th:text="${sensorName}"></title>
+</head>
+<body class="app header-fixed aside-menu-fixed sidebar-lg-show">
+<div layout:fragment="contents">
+    <div class="app-body">
+        <div th:replace="common/sidebar::sidebar"></div>
+
+        <main class="main">
+            <!-- Breadcrumb-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item">センサー</li>
+                <li class="breadcrumb-item active" th:text="${sensorName}"></li>
+            </ol>
+            <div class="container-fluid">
+                <div class="animated fadeIn">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-4">
+                                    <h4 class="card-title mb-1" th:text="${sensorName}"></h4>
+                                    <div class="form-group">
+                                        <select class="form-control form-control-sm" id="device-item" name="device-item">
+                                            <option th:each="device, stat : ${deviceList}"
+                                                    th:value="${stat.index}"
+                                                    th:text="${device.id + ' : ' + device.name + ' : ' + device.sensorId}"
+                                                    th:selected="${device.id == queryDeviceId}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- /.col-->
+                                <div class="col-8 d-md-block">
+                                    <div class="btn-group btn-group-toggle float-right mr-3" data-toggle="buttons">
+                                        <label class="btn btn-outline-secondary" th:classappend="${defaultDateSpan == 1 ? 'active' : ''}">
+                                            <input id="span-hour" type="radio" name="span" value="1" th:checked="${defaultDateSpan == 1}" autocomplete="off" > Hour
+                                        </label>
+                                        <label class="btn btn-outline-secondary" th:classappend="${defaultDateSpan == 2 ? 'active' : ''}">
+                                            <input id="span-day" type="radio" name="span" value="2" th:checked="${defaultDateSpan == 2}" autocomplete="off"> Day
+                                        </label>
+                                        <label class="btn btn-outline-secondary" th:classappend="${defaultDateSpan == 3 ? 'active' : ''}">
+                                            <input id="span-week" type="radio" name="span" value="3" th:checked="${defaultDateSpan == 3}" autocomplete="off"> Week
+                                        </label>
+                                        <label class="btn btn-outline-secondary" th:classappend="${defaultDateSpan == 5 ? 'active' : ''}">
+                                            <input id="span-month" type="radio" name="span" value="5" th:checked="${defaultDateSpan == 5}" autocomplete="off"> Month
+                                        </label>
+                                    </div>
+                                    <div class="btn-group float-right mr-3">
+                                        <button id="chart-type" type="button" value="line" class="btn btn-pill btn-success">グラフスタイル：line</button>
+                                    </div>
+                                </div>
+                                <!-- /.col-->
+                            </div>
+                            <!-- /.row-->
+                            <div class="chart-wrapper" style="height:300px;margin-top:40px;">
+                                <canvas class="chart" id="main-chart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script th:src="@{/assets/js/vendor/md_5.min.js}"></script>
+    <script th:src="@{/assets/core-ui/vendors/chart.js/js/Chart.min.js}"></script>
+    <script th:src="@{/assets/js/chartjs_custom_tooltips.js}"></script>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const Globals = {
+            chart: null,
+            legend: /*[[${legend}]]*/ '照度センサー(lux)',
+            dataEndpoint: /*[[${dataEndpoint}]]*/ 'lux-data',
+            deviceId: /*[[${queryDeviceId}]]*/ null,
+            deviceList: /*[[${deviceList}]]*/ [],
+            md5Hash: null,
+            legendList: [
+                {hidden: false},
+                {hidden: false}
+            ]
+        }
+        /*]]>*/
+    </script>
+    <script>
+        const createChart = () => {
+            return new Chart($('#main-chart'), {
+                type: $('#chart-type').val(),
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        xAxes: [{
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    minute: 'HH:mm',
+                                    hour: 'HH:00',
+                                    day: 'MM/DD',
+                                }
+                            },
+                            gridLines: {
+                                drawOnChartArea: false
+                            }
+                        }],
+                        yAxes: [{
+                            position: 'left',
+                            id: 'y-axis-data',
+                            scaleLabel: {
+                                display: true,
+                                labelString: Globals.legend
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }, {
+                            position: 'right',
+                            id: 'y-axis-rssi',
+                            scaleLabel: {
+                                display: true,
+                                labelString: 'RSSI (dB)'
+                            },
+                            gridLines: {
+                                drawOnChartArea: false
+                            }
+                        }]
+                    },
+                    elements: {
+                        point: {
+                            radius: 3,
+                            hitRadius: 10,
+                            hoverRadius: 4,
+                            hoverBorderWidth: 3
+                        }
+                    },
+                    legend: {
+                        onClick: (e, legendItem) => {
+                            const index = legendItem.datasetIndex
+                            const meta = Globals.chart.getDatasetMeta(index)
+                            meta.hidden = meta.hidden === null ? !Globals.chart.data.datasets[index].hidden : null
+                            Globals.chart.update()
+                            Globals.legendList[index].hidden = meta.hidden
+                        }
+                    }
+                }
+            })
+        }
+
+        const renderChart = (deviceId, deviceName, sensorId, span, doAnimation) => {
+            return $.getJSON(`/chart/${Globals.dataEndpoint}?device_id=${deviceId}&sensor_id=${sensorId}&span=${span}`)
+                .done(sensorData => {
+                    console.log(sensorData)
+                    if (md5(JSON.stringify(sensorData)) === Globals.md5Hash) {
+                        console.log("loaded same data")
+                        return
+                    }
+
+                    Globals.md5Hash = md5(JSON.stringify(sensorData))
+
+                    Globals.chart.options.scales.xAxes.forEach(x => {
+                        switch (span) {
+                            case '1': x.time.unit = 'minute'; break
+                            case '2': x.time.unit = 'hour'; break
+                            default: x.time.unit = 'day'; break
+                        }
+                    })
+
+                    Globals.chart.data.labels = sensorData.map(d => fromDateString(d.date))
+                    Globals.chart.data.datasets[0] = {
+                        label: Globals.legend,
+                        backgroundColor: hexToRgba(getStyle('--info'), 10),
+                        borderColor: getStyle('--info'),
+                        pointHoverBackgroundColor: getStyle('--info'),
+                        borderWidth: 2,
+                        yAxisID: 'y-axis-data',
+                        data: sensorData.map(d => d.data),
+                        hidden: Globals.legendList[0].hidden,
+                        steppedLine: 'before'
+                    }
+
+                    Globals.chart.data.datasets[1] = {
+                        label: 'RSSI (dB)',
+                        backgroundColor: hexToRgba('#ffffff', 0),
+                        borderColor: getStyle('--second'),
+                        pointHoverBackgroundColor: getStyle('--second'),
+                        borderWidth: 1,
+                        yAxisID: 'y-axis-rssi',
+                        data: sensorData.map(d => d.deviceRssi),
+                        hidden: Globals.legendList[1].hidden
+                    }
+
+                    Globals.chart.options.animation.duration = doAnimation ? 1000 : 0
+                    Globals.chart.update()
+                })
+                .fail((jqXHR, textStatus, errorThrown) => {
+                    console.log(jqXHR.status)
+                    console.log(textStatus)
+                    console.log(errorThrown)
+                })
+        }
+
+        const updateChart = (doAnimation = true) => {
+            const span = $('input[name=span]:checked').val()
+            const deviceInfo = Globals.deviceList[$('#device-item').val()]
+            if (deviceInfo === undefined) {
+                return
+            }
+            renderChart(deviceInfo.id, deviceInfo.name, deviceInfo.sensorId, span, doAnimation)
+                .always(() => autoReload())
+        }
+
+        let timeoutId = null
+        const autoReload = () => {
+            console.log("auto reloaded")
+            if (timeoutId !== null) {
+                clearTimeout(timeoutId)
+            }
+            timeoutId = setTimeout(() => {
+                updateChart(false)
+            }, 2000)
+        }
+
+        // change time span
+        $('input[name=span]').change(() => {
+            updateChart()
+        })
+
+        //
+        const chooseDevice = () => {
+            const deviceInfo = Globals.deviceList[$('#device-item').val()]
+            if (deviceInfo === undefined) {
+                return
+            }
+            updateChart()
+        }
+
+        // change device
+        $('#device-item').change(() => {
+            const deviceInfo = Globals.deviceList[$('#device-item').val()]
+            if (deviceInfo === undefined) {
+                return
+            }
+            location.href = `${location.pathname}?device_id=${deviceInfo.id}`
+        })
+
+        // change chart type
+        $('#chart-type').click( () => {
+            let chartType = $('#chart-type')
+            if(chartType.val() === 'line'){
+                chartType.val('bar')
+                chartType.text('グラフスタイル:Bar')
+            } else {
+                chartType.val('line')
+                chartType.text('グラフスタイル:Line')
+            }
+            Globals.chart.destroy()
+            Globals.chart = createChart()
+            updateChart()
+        })
+
+        Chart.defaults.global.pointHitDetectionRadius = 1
+        Chart.defaults.global.tooltips.enabled = false
+        Chart.defaults.global.tooltips.mode = 'index'
+        Chart.defaults.global.tooltips.position = 'nearest'
+        Chart.defaults.global.tooltips.intersect = false
+        Chart.defaults.global.tooltips.custom = OpenCloseDateLabelCustomTooltips
+
+        Globals.chart = createChart()
+        chooseDevice()
+
+</script>
+
+</div>
+
+</body>
+</html>

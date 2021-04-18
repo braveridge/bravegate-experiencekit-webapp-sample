@@ -25,5 +25,6 @@ class ApplicationResponse {
     @JsonIgnoreProperties(ignoreUnknown=true)
     class Setting {
         lateinit var url: String
+        var token: String? = null
     }
 }

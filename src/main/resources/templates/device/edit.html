@@ -1,10 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
 <head>
-    <meta charset="UTF-8">
     <title>デバイス管理</title>
 </head>
-<body>
+<body class="app header-fixed aside-menu-fixed sidebar-lg-show">
+<div layout:fragment="contents">
+    <div class="app-body">
+        <div th:replace="common/sidebar::sidebar"></div>
+        <main class="main">
+            <!-- Breadcrumb-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Home</a></li>
+                <li class="breadcrumb-item"><a href="/device">デバイス管理</a></li>
+                <li class="breadcrumb-item active">編集</li>
+            </ol>
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>デバイス情報</strong>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="card-title mb-4">デバイスID : <span th:text="${device.deviceId}"></span></h4>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="group-id">グループID</label>
+                                <div class="input-group">
+                                    <div class="input-group">
+                                        <input class="form-control" id="group-id" th:value="${device.groupId}" type="text" name="group-id" maxlength="100" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="name">デバイス名</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="name" type="text" name="name" maxlength="100" th:value="${device.name}">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="card-footer">
+                        <button id="submit" class="btn btn-lg btn-success" type="submit">更新する</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 更新完了モーダル -->
+    <div th:replace="common/fragment::modal('successModal', 'success', '更新完了', 'デバイス情報を更新しました')"></div>
+
+    <!-- エラーモーダル -->
+    <div th:replace="common/fragment::modal('errorModal', 'danger', '入力エラー', '入力内容を確認してください')"></div>
+
+</div>
+
+<div layout:fragment="scripts">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const deviceId = /*[[${device.deviceId}]]*/ '';
+        /*]]>*/
+    </script>
+    <script>
+        //  modal
+        $('#successModal').on('hidden.bs.modal', () => {
+            location.href = '/device'
+        })
+
+        const isAllValid = () => $('#name').hasClass('is-valid')
+
+        $('#name').focusout(() => {
+            const target = $('#name')
+            const value = target.val()
+            validateInput(target, value.length > 0)
+        })
+
+        $('#submit').click(() => {
+            //  validation
+            $('#name').trigger('focusout')
+
+            if (!isAllValid()) {
+                $('#errorModal').modal()
+                return
+            }
+
+            const data = {
+                'group_id': $('#group-id').val(),
+                'name': $('#name').val()
+            }
+
+            $.ajax({
+                type: 'post',
+                url: '/device/edit/' + deviceId,
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                dataType: 'json',
+                beforeSend: () => {
+                    $('#submit').prop('disabled', true)
+                },
+                success: data => {
+                    console.log('data', data)
+                    $('#successModal').modal()
+                },
+                error: res => {
+                    const error = res.responseJSON.error
+                    console.log('error', error)
+                    $('#errorModal').modal()
+                    $('#submit').prop('disabled', false)
+                }
+            })
+        })
+    </script>
+</div>
 
 </body>
 </html>

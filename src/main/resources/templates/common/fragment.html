@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head></head>
+<body>
+
+<!-- ページャー -->
+<nav th:fragment="pager(pager, url)">
+    <ul class="pagination" th:if="${pager.lastPage() > 1}">
+        <li class="page-item" th:if="${pager.hasPrev() == true}">
+            <a class="page-link" th:href="@{${url}(page=${pager.prevPage()})}">前へ</a>
+        </li>
+        <li th:each="i : ${#numbers.sequence(1, pager.lastPage())}"
+            th:if="${i >= pager.currentPage - 3 && i <= pager.currentPage + 3}"
+            th:class="page-item"
+            th:classappend="${(i == pager.currentPage) ? ' active' : ''}">
+            <a class="page-link" th:href="@{${url}(page=${i})}" th:text="${i}">1</a>
+        </li>
+        <li class="page-item" th:if="${pager.hasNext() == true}">
+            <a class="page-link" th:href="@{${url}(page=${pager.nextPage()})}">次へ</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- モーダル -->
+<div class="modal fade" th:id="${modalId}" tabindex="-1" role="dialog" style="display: none;" th:fragment="modal(modalId, modalStyle, modalTitle, modalBody)">
+    <div class="modal-dialog" th:classappend="${'modal-' + modalStyle}" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" th:text="${modalTitle}">入力エラー</h4>
+                <button class="close" type="button" data-dismiss="modal">
+                    <span>×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <th:block th:each="line: ${modalBody.split('\\n', -1)}">
+                        <th:block th:text="${line}" /><br />
+                    </th:block>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">閉じる</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" th:id="${modalId}" tabindex="-1" role="dialog" style="display: none;" th:fragment="confirmModal(modalId, modalStyle, modalTitle, modalBody, okStyle, okTitle)">
+    <div class="modal-dialog" th:classappend="${'modal-' + modalStyle}" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" th:text="${modalTitle}">入力エラー</h4>
+                <button class="close" type="button" data-dismiss="modal">
+                    <span>×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <th:block th:each="line: ${modalBody.split('\\n', -1)}">
+                        <th:block th:text="${line}" /><br />
+                    </th:block>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" th:classappend="${'btn-' + okStyle}" type="button" name="modal-ok" data-dismiss="modal" th:text="${okTitle}">実行する</button>
+                <button class="btn btn-secondary" type="button" data-dismiss="modal">閉じる</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

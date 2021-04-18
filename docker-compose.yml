@@ -1,0 +1,41 @@
+version: "3"
+services:
+  db-server:
+    container_name: mysql57
+    image: db-server
+    build:
+      context: .
+      dockerfile: docker/db-server/Dockerfile
+    environment:
+      MYSQL_DATABASE: sensor_sample_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    expose:
+      - 3306
+    ports:
+      - 3307:3306
+    volumes:
+      - ./docker/db-server/initdb:/docker-entrypoint-initdb.d
+      - ./docker/db-server/config:/etc/mysql/conf.d
+      #DBデータを永続化するために名前付きボリュームを作成
+      - mysql_db:/var/lib/mysql
+
+  app-server:
+    image: app-server
+    container_name: spring
+    build: docker/app-server
+    depends_on:
+      - db-server
+    ports:
+      - "8080:8080"
+    working_dir: "/app"
+    volumes:
+      - ./build:/app
+    environment:
+      TZ: Asia/Tokyo
+    tty: true
+    command: sh -c "java -jar -Dspring.profiles.active=dev /app/libs/bravegate-sensor-sample-0.0.1-SNAPSHOT.jar"
+volumes:
+  mysql_db:
+    driver: local

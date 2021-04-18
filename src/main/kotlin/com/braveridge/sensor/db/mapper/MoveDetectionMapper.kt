@@ -63,9 +63,28 @@ interface MoveDetectionMapper {
     """)
     fun getAverageValue(deviceId: String, sensorId: String, afterOrEqualDate: LocalDateTime): Double
 
+    //
+    @Select("""
+    SELECT device_id, FROM_UNIXTIME(minute * 60) AS date, avg_data, avg_device_rssi
+    FROM (
+        SELECT
+            device_id,
+            TRUNCATE(UNIX_TIMESTAMP(`date`) / 60, 0) AS minute,
+            MAX(`count`) AS avg_data,
+            AVG(`device_rssi`) AS avg_device_rssi
+        FROM move_detection
+        WHERE device_id = #{deviceId}
+            AND sensor_id = #{sensorId}
+            AND date >= #{afterOrEqualDate}
+        GROUP BY TRUNCATE(UNIX_TIMESTAMP(`date`) / 60, 0)
+    ) AS data_per_minute
+    ORDER BY date
+    """)
+    fun findSensorCountData(deviceId: String, sensorId: String, afterOrEqualDate: LocalDateTime): List<SensorDataEntity>
+
     // データ取得
     // 条件：id
-    @Select("SECLCT * FROM move_detection WHERE id = #{id}")
+    @Select("SELECT * FROM move_detection WHERE id = #{id}")
     fun findById( id: Long ): MoveDetectionEntity?
 
     // データ取得

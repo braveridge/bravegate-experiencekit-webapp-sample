@@ -1,7 +1,5 @@
 package com.braveridge.sensor.client
 
-import com.braveridge.sensor.client.RetrofitExecutor
-import com.braveridge.sensor.client.RetrofitResult
 import com.braveridge.sensor.client.request.AuthRequest
 import com.braveridge.sensor.client.response.AuthResponse
 import org.springframework.cache.annotation.Cacheable
@@ -10,13 +8,13 @@ import java.time.Duration
 
 @Component
 class AuthTokenResolver(private val client: BravegateClient,
-                        private val executor: RetrofitExecutor) {
-
-    companion object CacheKey {
+                        private val executor: RetrofitExecutor
+) {
+     companion object CacheKey {
         const val ResolveAuthToken = "AuthTokenResolver.resolveAuthToken"
     }
 
-    @Cacheable(AuthTokenResolver.ResolveAuthToken)
+    @Cacheable(ResolveAuthToken)
     fun resolve(authkeyId: String, authkeySecret: String): AuthToken? {
         val authResult = auth(authkeyId, authkeySecret)
         return if (authResult.isSuccessed) {
@@ -31,6 +29,4 @@ class AuthTokenResolver(private val client: BravegateClient,
         val call = client.auth(request)
         return executor.execute(call)
     }
-
-
 }

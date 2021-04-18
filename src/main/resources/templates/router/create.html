@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head>
+    <title>ルーター管理</title>
+</head>
+<body class="app header-fixed aside-menu-fixed sidebar-lg-show">
+<div layout:fragment="contents">
+    <div class="app-body">
+        <div th:replace="common/sidebar::sidebar"></div>
+        <main class="main">
+            <!-- Breadcrumb-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/router">ルーター管理</a></li>
+                <li class="breadcrumb-item active">新規登録</li>
+            </ol>
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>ルーター情報</strong>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="router-id">ルーターID</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="router-id" type="text" name="router-id" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="name">ルーター名</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="name" type="text" name="name" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="registration-code">Registration Code</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="registration-code" type="text" name="registration-code" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button id="submit" class="btn btn-lg btn-success" type="submit">登録する</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 更新完了モーダル -->
+    <div th:replace="common/fragment::modal('successModal', 'success', '登録完了', 'ルーター情報を追加しました')"></div>
+    <!-- エラーモーダル -->
+    <div th:replace="common/fragment::modal('errorModal', 'danger', '入力エラー', '入力内容を確認してください')"></div>
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        //  modal
+        $('#successModal').on('hidden.bs.modal', () => {
+            location.href = '/router'
+        })
+
+        const isAllValid = () => $('#router-id').hasClass('is-valid')
+            && $('#name').hasClass('is-valid')
+            && $('#registration-code').hasClass('is-valid')
+
+        $('#router-id').focusout(() => {
+            const target = $('#router-id')
+            const value = target.val()
+            validateInput(target, value.length > 0)
+        })
+
+        $('#name').focusout(() => {
+            const target = $('#name')
+            const value = target.val()
+            validateInput(target, value.length > 0)
+        })
+
+        $('#registration-code').focusout(() => {
+            const target = $('#registration-code')
+            const value = target.val()
+            validateInput(target, value.length > 0)
+        })
+
+        $('#submit').click(() => {
+            //  validation
+            $('#router-id').trigger('focusout')
+            $('#name').trigger('focusout')
+            $('#registration-code').trigger('focusout')
+
+            if (!isAllValid()) {
+                $('#errorModal').modal()
+                return
+            }
+
+            const data = {
+                'router_id': $('#router-id').val(),
+                'name': $('#name').val(),
+                'registration_code': $('#registration-code').val()
+            }
+
+            $.ajax({
+                type: 'post',
+                url: '/router/create',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                dataType: 'json',
+                beforeSend: () => {
+                    $('#submit').prop('disabled', true)
+                },
+                success: data => {
+                    console.log('data', data)
+                    $('#successModal').modal()
+                },
+                error: res => {
+                    const error = res.responseJSON.error
+                    console.log('error', error)
+                    $('#errorModal').modal()
+                    $('#submit').prop('disabled', false)
+                }
+            })
+        })
+    </script>
+</div>
+
+</body>
+</html>

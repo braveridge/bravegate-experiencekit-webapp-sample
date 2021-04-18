@@ -10,30 +10,16 @@ interface BravegateClient {
     @POST("v1/auth")
     fun auth(@Body authRequest: AuthRequest): Call<AuthResponse>
 
-    @POST("v1/auth")
-    fun authByPassword(@Body authPasswordRequest: AuthPasswordRequest): Call<AuthResponse>
-
     @GET("v1/groups")
     fun getGroupList(@Header("X-Braveridge-API-Key") apiKey: String,
                      @Header("X-Braveridge-Token") token: String,
                      @Query("page") page: Int,
                      @Query("limit") limit: Int): Call<GroupListResponse>
 
-    @POST("v1/groups")
-    fun createGroup(@Header("X-Braveridge-API-Key") apiKey: String,
-                    @Header("X-Braveridge-Token") token: String,
-                    @Body groupRequest: GroupRequest): Call<GroupResponse>
-
     @GET("v1/groups/{id}")
     fun getGroup(@Header("X-Braveridge-API-Key") apiKey: String,
                  @Header("X-Braveridge-Token") token: String,
                  @Path("id") groupId: String): Call<GroupResponse>
-
-    @PUT("v1/groups/{id}")
-    fun updateGroup(@Header("X-Braveridge-API-Key") apiKey: String,
-                    @Header("X-Braveridge-Token") token: String,
-                    @Path("id") groupId: String,
-                    @Body groupRequest: GroupRequest): Call<GroupResponse>
 
     @DELETE("v1/groups/{id}")
     fun deleteGroup(@Header("X-Braveridge-API-Key") apiKey: String,
@@ -129,35 +115,24 @@ interface BravegateClient {
                           @Path("id") applicationId: String): Call<ApplicationResponse>
 
     @GET("v1/commands")
-    fun getCommandList(@Header("X-Braveridge-API-Key") apiKey: String,
-                       @Header("X-Braveridge-Token") token: String,
-                       @Query("page") page: Int,
-                       @Query("limit") limit: Int): Call<CommandListResponse>
-
-    @POST("v1/commands")
-    fun postCommand(@Header("X-Braveridge-API-Key") apiKey: String,
+    fun getCommands(@Header("X-Braveridge-API-Key") apiKey: String,
                     @Header("X-Braveridge-Token") token: String,
-                    @Body commandRequest: CommandRequest): Call<Void>
+                    @Query("page") page: Int,
+                    @Query("limit") limit: Int): Call<CommandsResponse>
 
     @GET("v1/commands/{id}")
     fun getCommand(@Header("X-Braveridge-API-Key") apiKey: String,
                    @Header("X-Braveridge-Token") token: String,
                    @Path("id") commandId: String): Call<CommandResponse>
 
+    @POST("v1/commands")
+    fun postCommand(@Header("X-Braveridge-API-Key") apiKey: String,
+                    @Header("X-Braveridge-Token") token: String,
+                    @Body commandRequest: CommandRequest): Call<Void>
+
     @GET("v1/accounts")
     fun getAccount(@Header("X-Braveridge-API-Key") apiKey: String,
                    @Header("X-Braveridge-Token") token: String): Call<AccountListResponse>
-
-    @POST("v1/accounts")
-    fun postAccount(@Header("X-Braveridge-API-Key") apiKey: String,
-                    @Header("X-Braveridge-Token") token: String,
-                    @Body accountRequest: AccountRequest): Call<AccountResponse>
-
-    @PUT("v1/accounts/{id}")
-    fun updateAccount(@Header("X-Braveridge-API-Key") apiKey: String,
-                      @Header("X-Braveridge-Token") token: String,
-                      @Path("id") accountId: String,
-                      @Body request: AccountUpdateRequest): Call<AccountResponse>
 
     @POST("v1/apikeys")
     fun postApiKey(@Header("X-Braveridge-API-Key") apiKey: String,

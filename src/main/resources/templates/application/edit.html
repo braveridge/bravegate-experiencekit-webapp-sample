@@ -1,10 +1,189 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
 <head>
-    <meta charset="UTF-8">
     <title>アプリケーション管理</title>
 </head>
-<body>
+<body class="app header-fixed aside-menu-fixed sidebar-lg-show">
+<div layout:fragment="contents">
+    <div class="app-body">
+        <div th:replace="common/sidebar::sidebar"></div>
+        <main class="main">
+            <!-- Breadcrumb-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Home</a></li>
+                <li class="breadcrumb-item active">アプリケーション管理</li>
+            </ol>
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>アプリケーション情報</strong>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="application-id">アプリケーションID</label>
+
+                                <div class="input-application">
+                                    <input class="form-control" id="application-id" th:value="${app.applicationId}" type="text" name="application-id" maxlength="100" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="application-name">アプリケーション名</label>
+                                <div class="input-application">
+                                    <input class="form-control" id="application-name" th:value="${app.name}" type="text" name="application-name" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="application-url">WEBHOOK URL</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="application-url" th:value="${app.settings.url}" type="text" name="application-url" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="application-token">トークン</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="application-token" th:value="${app.settings.token}" type="text" name="application-token" maxlength="100">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button id="submit" class="btn btn-lg btn-success" type="submit">登録／更新</button>
+                        <button id="create-token" class="btn btn-lg btn-primary" type="submit">トークン生成</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 登録完了モーダル -->
+    <div th:replace="common/fragment::modal('successCreateModal', 'success', '登録完了', 'アプリケーション情報を登録しました')"></div>
+    <!-- 更新完了モーダル -->
+    <div th:replace="common/fragment::modal('successUpdateModal', 'success', '更新完了', 'アプリケーション情報を更新しました')"></div>
+    <!-- エラーモーダル -->
+    <div th:replace="common/fragment::modal('errorModal', 'danger', '入力エラー', '入力内容を確認してください')"></div>
+
+</div>
+
+<div layout:fragment="scripts">
+     <script>
+        //  modal
+        $('#successCreateModal').on('hidden.bs.modal', () => {
+            location.href = '/device'
+        })
+
+        const isAllValid = () => $('#application-name').hasClass('is-valid')
+            && $('#application-url').hasClass('is-valid')
+            && $('#application-token').hasClass('is-valid')
+
+        $('#application-name').focusout(() => {
+            const target = $('#application-name')
+            const value = target.val()
+            validateInput(target, value.length > 0)
+        })
+
+        $('#application-url').focusout(() => {
+            const target = $('#application-url')
+            const value = target.val()
+            validateInput(target, value.length > 0)
+        })
+
+        $('#application-token').focusout(() => {
+            const target = $('#application-token')
+            const value = target.val()
+            validateInput(target, value.length > 0)
+        })
+
+        $('#submit').click(() => {
+            $('#application-name').trigger('focusout')
+            $('#application-url').trigger('focusout')
+            $('#application-token').trigger('focusout')
+
+            if (!isAllValid()) {
+                $('#errorModal').modal()
+                return
+            }
+
+            //Update
+            if($('#application-id').val().length > 0){
+                const data = {
+                    'application_id': $('#application-id').val(),
+                    'name': $('#application-name').val(),
+                    'url': $('#application-url').val(),
+                    'token': $('#application-token').val()
+                }
+                $.ajax({
+                    type: 'post',
+                    url: '/application/update',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    beforeSend: () => {
+                        $('#submit').prop('disabled', true)
+                    },
+                    success: data => {
+                        console.log('data', data)
+                        $('#successUpdateModal').modal()
+                    },
+                    error: res => {
+                        const error = res.responseJSON.error
+                        console.log('error', error)
+                        $('#errorModal').modal()
+                        $('#submit').prop('disabled', false)
+                    }
+                })
+            }
+            // Create
+            else{
+                const data = {
+                    'application_id': $('#application-id').val(),
+                    'name': $('#application-name').val(),
+                    'url': $('#application-url').val(),
+                    'token': $('#application-token').val()
+                }
+                $.ajax({
+                    type: 'post',
+                    url: '/application/create',
+                    data: JSON.stringify(data),
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    beforeSend: () => {
+                        $('#submit').prop('disabled', true)
+                    },
+                    success: data => {
+                        console.log('data', data)
+                        $('#successUpdateModal').modal()
+                    },
+                    error: res => {
+                        const error = res.responseJSON.error
+                        console.log('error', error)
+                        $('#errorModal').modal()
+                        $('#submit').prop('disabled', false)
+                    }
+                })
+            }
+        })
+
+        $('#create-token').click(() => {
+            $.get('/application/token', {}, function(data){
+                $('#application-token').val(data)
+            })
+        })
+    </script>
+</div>
 
 </body>
 </html>

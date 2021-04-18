@@ -10,8 +10,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 
 @Configuration
-class AppConfig {
-
+class AppConfig
+{
+    // Json -> Java Object Converter のインスタンス生成
     @Bean
     fun jacksonConverterFactory(mapper: ObjectMapper): JacksonConverterFactory = JacksonConverterFactory.create(mapper)
 
@@ -24,6 +25,7 @@ class AppConfig {
                 .client(OkHttpClient.Builder().build())
                 .build()
 
+    // Bravegateクライアントのインタンス生成
     @Bean
     fun bravegateClient(bravegateRetrofit: Retrofit) = bravegateRetrofit.create(BravegateClient::class.java)
 }

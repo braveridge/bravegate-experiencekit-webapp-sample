@@ -70,7 +70,7 @@ interface HumidityMapper {
             SELECT
                 router_id,
                 TRUNCATE(UNIX_TIMESTAMP(`date`) / #{perSeconds}, 0) AS minute,
-                AVG(`humidity`) AS avg_data,
+                AVG(`value`) AS avg_data,
                 AVG(`device_rssi`) AS avg_device_rssi
             FROM humidity
             WHERE router_id = #{routerId}
@@ -100,7 +100,7 @@ interface HumidityMapper {
     // 平均湿度を取得
     // 条件：デバイスID、センサID、取得開始日
     @Select("""
-        SELECT TRUNCATE(AVG(`humidity`) + .005, 2)
+        SELECT TRUNCATE(AVG(`value`) + .005, 2)
         FROM humidity
         WHERE device_id = #{deviceId}
             AND sensor_id = #{sensorId}
@@ -110,7 +110,7 @@ interface HumidityMapper {
 
     // データ取得
     // 条件：id
-    @Select("SECLCT * FROM humidity WHERE id = #{id}")
+    @Select("SELECT * FROM humidity WHERE id = #{id}")
     fun findById( id: Long ): HumidityEntity?
 
     // データ取得
@@ -120,8 +120,8 @@ interface HumidityMapper {
 
     // データ追加
     @Insert("INSERT INTO humidity (" +
-            "router_id, device_id, device_rssi, sensor_id, humidity, uplink_id, date) VALUES (" +
-            "#{routerId}, #{deviceId}, #{deviceRssi}, #{sensorId}, #{humidity}, #{uplinkId}, #{date})")
+            "router_id, device_id, device_rssi, sensor_id, value, uplink_id, date) VALUES (" +
+            "#{routerId}, #{deviceId}, #{deviceRssi}, #{sensorId}, #{value}, #{uplinkId}, #{date})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     fun insert(entity: HumidityEntity): Long
 

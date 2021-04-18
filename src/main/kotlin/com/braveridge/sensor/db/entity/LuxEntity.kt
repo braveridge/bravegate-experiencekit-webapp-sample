@@ -12,7 +12,7 @@ data class LuxEntity(
     val value: Double,
     val uplinkId: String,
     val date: LocalDateTime,
-    val createdAt: LocalDateTime
+    val createdAt: LocalDateTime? = null
 ) : SensorDataEntityInterface {
     override fun sensorDeviceId() = deviceId
     override fun sensorId() = sensorId

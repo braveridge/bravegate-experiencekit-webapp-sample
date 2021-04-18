@@ -70,7 +70,7 @@ interface LuxMapper {
             SELECT
                 router_id,
                 TRUNCATE(UNIX_TIMESTAMP(`date`) / #{perSeconds}, 0) AS minute,
-                AVG(`lux`) AS avg_data,
+                AVG(`value`) AS avg_data,
                 AVG(`device_rssi`) AS avg_device_rssi
             FROM lux
             WHERE router_id = #{routerId}
@@ -100,7 +100,7 @@ interface LuxMapper {
     // 平均湿度を取得
     // 条件：デバイスID、センサID、取得開始日
     @Select("""
-        SELECT TRUNCATE(AVG(`lux`) + .005, 2)
+        SELECT TRUNCATE(AVG(`value`) + .005, 2)
         FROM lux
         WHERE device_id = #{deviceId}
             AND sensor_id = #{sensorId}
@@ -110,7 +110,7 @@ interface LuxMapper {
 
     // データ取得
     // 条件：id
-    @Select("SECLCT * FROM lux WHERE id = #{id}")
+    @Select("SELECT * FROM lux WHERE id = #{id}")
     fun findById( id: Long ): LuxEntity?
 
     // データ取得
@@ -120,8 +120,8 @@ interface LuxMapper {
 
     // データ追加
     @Insert("INSERT INTO lux (" +
-            "router_id, device_id, device_rssi, sensor_id, lux, uplink_id, date) VALUES (" +
-            "#{routerId}, #{deviceId}, #{deviceRssi}, #{sensorId}, #{lux}, #{uplinkId}, #{date})")
+            "router_id, device_id, device_rssi, sensor_id, value, uplink_id, date) VALUES (" +
+            "#{routerId}, #{deviceId}, #{deviceRssi}, #{sensorId}, #{value}, #{uplinkId}, #{date})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     fun insert(entity: LuxEntity): Long
 

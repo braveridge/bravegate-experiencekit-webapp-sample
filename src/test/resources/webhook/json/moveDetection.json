@@ -1,0 +1,29 @@
+{
+  "group": {
+    "group_id": "GRyUWY7VVOH7A2pPnRFNRCpxJnrV0ewHF3",
+    "name": "難波 開発用"
+  },
+  "application": {
+    "application_id": "AP9p5JNtKfW7FMFVdC8owffWtSRwJ75bT2",
+    "name": "難波 開発用"
+  },
+  "router": {
+    "router_id": "000001be",
+    "imsi": "440030011066385",
+    "rssi": -57,
+    "battery": 100,
+    "fw_version": "135.2.8"
+  },
+  "device": {
+    "device_id": "246880010800000a",
+    "sensor_id": "0015",
+    "sensor_name": "Move detection",
+    "rssi": -18,
+    "data": {
+      "move_info_flag": 0,
+      "move_info_count": 0
+    }
+  },
+  "uplink_id": "78dba21f-6968-437e-a36e-0740c46a91cc",
+  "date": "2020-05-26T20:03:15+09:00"
+}

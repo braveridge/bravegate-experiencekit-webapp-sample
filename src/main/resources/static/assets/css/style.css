@@ -1,0 +1,19 @@
+.setting-menu {
+    margin-right: 25px;
+}
+
+.force-lowercase {
+    text-transform: none !important;
+}
+
+.device-info {
+    margin-right: 10px;
+}
+
+.table {
+    background-color: #ffffff
+}
+
+.clickable {
+    cursor: pointer;
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head>
+    <title>コマンド送信履歴</title>
+</head>
+<body class="app header-fixed aside-menu-fixed sidebar-lg-show">
+<div layout:fragment="contents">
+    <div class="app-body">
+        <div th:replace="common/sidebar::sidebar"></div>
+        <main class="main">
+            <!-- Breadcrumb-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">コマンド送信履歴</li>
+            </ol>
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>送信履歴</strong>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-responsive-sm table-bordered table-striped table-sm">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>コマンド名</th>
+                                <th>ステータスカウント<br>完了 / 保留 / 拒否</th>
+                                <th>ステータス</th>
+                                <th>受付日時</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="command : ${commandList}">
+                                <td th:text="${command.commandId}"></td>
+                                <td th:text="${command.name}"></td>
+                                <td>
+                                    <span class="text-success" th:text="${command.processedStatusCount}"></span> /
+                                    <span class="text-warning" th:text="${command.pendingStatusCount}"></span> /
+                                    <span class="text-danger" th:text="${command.rejectedStatusCount}"></span>
+                                </td>
+                                <td th:text="${command.status}"></td>
+                                <td th:text="${#temporals.format(command.acceptedAt, 'yyyy/MM/dd HH:mm:ss')}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div th:replace="common/fragment::pager(${pager}, '/command/list')"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</body>
+</html>

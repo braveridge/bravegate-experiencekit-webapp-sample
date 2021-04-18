@@ -1,10 +1,120 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
 <head>
-    <meta charset="UTF-8">
     <title>ルーター管理</title>
 </head>
-<body>
+<body class="app header-fixed aside-menu-fixed sidebar-lg-show">
+<div layout:fragment="contents">
+    <div class="app-body">
+        <div th:replace="common/sidebar::sidebar"></div>
+        <main class="main">
+            <!-- Breadcrumb-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="">Home</a></li>
+                <li class="breadcrumb-item active">ルーター管理</li>
+            </ol>
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>ルーター情報</strong>
+                        <div class="float-right">
+                            <a href="/router/create">
+                                <button class="btn btn-outline-primary" type="button">新規登録</button>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="router-id">ルーターID</label>
+
+                                <div class="input-group">
+                                    <input class="form-control" id="router-id" th:value="${router.routerId}" type="text" name="router-id" maxlength="100" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="router-name">ルーター名</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="router-name" th:value="${router.name}" type="text" name="router-name" maxlength="100" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="group-id">グループID</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="group-id" th:value="${router.groupId}" type="text" name="group-id" maxlength="100" readonly>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-5">
+                                <label class="form-col-form-label" for="router-imsi">IMSI</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="router-imsi" th:value="${router.imsi}" type="text" name="router-imsi" maxlength="100" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button id="delete" class="btn btn-lg btn-warning" type="submit">削除</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- 削除完了モーダル -->
+    <div th:replace="common/fragment::modal('successDeleteModal', 'success', '削除完了', 'ルーター情報を削除しました')"></div>
+    <!-- 確認モーダル -->
+    <div th:replace="common/fragment::confirmModal('confirmModal', 'warning', '削除確認', '削除してもよろしいですか？', 'danger', '削除する')"></div>
+
+</div>
+
+<div layout:fragment="scripts">
+    <script>
+        //  modal
+        $('#successDeleteModal').on('hidden.bs.modal', () => {
+            location.href = '/router'
+        })
+
+        $('#confirmModal [name=modal-ok]').click(() => {
+            //Delete
+            $.ajax({
+                type: 'post',
+                url: '/router/delete/' + $("#router-id").val(),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: data => {
+                    if (data) {
+                        $('#successDeleteModal').modal()
+                    } else {
+                        $('#errorModal').modal()
+                    }
+                },
+                error: res => {
+                    const error = res.responseJSON.error
+                    console.log('error', error)
+                    $('#errorModal').modal()
+                }
+            })
+        })
+
+        $('#delete').click( () => {
+            if(0 == $("#router-id").val().length) return
+            $('#confirmModal').modal()
+        })
+
+    </script>
+</div>
 
 </body>
 </html>

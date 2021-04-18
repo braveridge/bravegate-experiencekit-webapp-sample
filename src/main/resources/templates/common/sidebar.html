@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+  <div class="bg-light border-right" id="sidebar-wrapper" th:fragment="sidebar">
+    <div class="list-group list-group-flush">
+      <a href="/chart/temperature" class="list-group-item list-group-item-action bg-light">温度センサー</a>
+      <a href="/chart/humidity" class="list-group-item list-group-item-action bg-light">湿度センサー</a>
+      <a href="/chart/lux" class="list-group-item list-group-item-action bg-light">照度センサー</a>
+      <a href="/chart/move-detection" class="list-group-item list-group-item-action bg-light">振動センサー</a>
+      <a href="/sensorlog/list" class="list-group-item list-group-item-action bg-light">センサーログ</a>
+      <a href="/command/list" class="list-group-item list-group-item-action bg-light">コマンド送信履歴</a>
+    </div>
+  </div>
+</body>
+</html>

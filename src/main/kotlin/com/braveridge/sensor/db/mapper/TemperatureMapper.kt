@@ -71,7 +71,7 @@ interface TemperatureMapper {
             SELECT
                 router_id,
                 TRUNCATE(UNIX_TIMESTAMP(`date`) / #{perSeconds}, 0) AS minute,
-                AVG(`temperature`) AS avg_data,
+                AVG(`value`) AS avg_data,
                 AVG(`device_rssi`) AS avg_device_rssi
             FROM temperature
             WHERE router_id = #{routerId}
@@ -101,7 +101,7 @@ interface TemperatureMapper {
     // 平均温度を取得
     // 条件：デバイスID、センサID、取得開始日
     @Select("""
-        SELECT TRUNCATE(AVG(`temperature`) + .005, 2)
+        SELECT TRUNCATE(AVG(`value`) + .005, 2)
         FROM temperature
         WHERE device_id = #{deviceId}
             AND sensor_id = #{sensorId}
@@ -111,7 +111,7 @@ interface TemperatureMapper {
 
     // データ取得
     // 条件：id
-    @Select("SECLCT * FROM temperature WHERE id = #{id}")
+    @Select("SELECT * FROM temperature WHERE id = #{id}")
     fun findById( id: Long ): TemperatureEntity?
 
     // データ取得
@@ -121,8 +121,8 @@ interface TemperatureMapper {
 
     // データ追加
     @Insert("INSERT INTO temperature (" +
-            "router_id, device_id, device_rssi, sensor_id, temperature, uplink_id, date) VALUES (" +
-            "#{routerId}, #{deviceId}, #{deviceRssi}, #{sensorId}, #{temperature}, #{uplinkId}, #{date})")
+            "router_id, device_id, device_rssi, sensor_id, value, uplink_id, date) VALUES (" +
+            "#{routerId}, #{deviceId}, #{deviceRssi}, #{sensorId}, #{value}, #{uplinkId}, #{date})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     fun insert(entity: TemperatureEntity): Long
 

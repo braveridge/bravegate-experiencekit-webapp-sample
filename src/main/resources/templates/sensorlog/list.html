@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{common/layout}">
+<head>
+    <title>センサーログ</title>
+    <style>
+        .popover {
+            max-width: 500px;
+            font-size: 1.0em;
+        }
+        .json-key {
+            color: #191919;
+        }
+        .json-value {
+            color: #ff0000;
+        }
+        .json-string {
+            color: #093cd7;
+        }
+    </style>
+</head>
+<body class="app header-fixed aside-menu-fixed sidebar-lg-show">
+<div layout:fragment="contents">
+    <div class="app-body">
+        <div th:replace="common/sidebar::sidebar"></div>
+        <main class="main">
+            <!-- Breadcrumb-->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active">センサーログ</li>
+            </ol>
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <strong>ログ一覧</strong>
+                    </div>
+                    <div class="card-body">
+
+                        <div class="row">
+                            <div class="form-group col-sm-2">
+                                <label for="application-id">アプリケーションID</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="application-id" th:value="${applicationId}" type="text" name="application-id" maxlength="100" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-2">
+                                <label for="router-id">ルータID</label>
+                                <div class="input-group">
+                                    <input class="form-control" id="router-id" th:value="${routerId}" type="text" name="router-id" maxlength="100" readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-sm-2">
+                                <label for="device-id">デバイス</label>
+                                <select class="form-control form-control-sm" id="device-id" name="device-id">
+                                    <option value="">-</option>
+                                    <option th:each="device : ${deviceList}" th:value="${device.deviceId}" th:text="${device.deviceId + ' : ' + device.name}" th:selected="${queryDeviceId == device.deviceId}"></option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-sm-2">
+                                <label for="sensor-id">センサー</label>
+                                <select class="form-control form-control-sm" id="sensor-id" name="sensor-id">
+                                    <option value="">-</option>
+                                    <option th:each="sensor : ${sensorList}" th:value="${sensor.id}" th:text="${sensor.id + ' : ' + sensor.name}" th:selected="${querySensorId == sensor.id}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <table class="table table-responsive table-bordered table-striped table-sm table-float">
+                            <thead>
+                            <tr>
+                                <th>データ日時</th>
+                                <th>アプリケーション</th>
+                                <th>ルータ</th>
+                                <th>デバイス</th>
+                                <th>センサー</th>
+                                <th>データ</th>
+                                <th>受信日時</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="log : ${logList}">
+                                <td>
+                                    <button name="date-button" class="btn btn-block btn-ghost-success" type="button"
+                                            data-toggle="popover" data-placement="top" data-html="true"
+                                            data-original-title="" title="" data-content=""
+                                            th:text="${#temporals.format(log.date, 'yyyy/MM/dd HH:mm:ss')}"></button>
+                                </td>
+                                <td>
+                                    ID:<span th:text="${log.applicationId}"></span><br>
+                                    名前:<span th:text="${log.applicationName}"></span>
+                                </td>
+                                <td>
+                                    ID:<span th:text="${log.routerId}"></span><br>
+                                    IMSI:<span th:text="${log.routerImsi}"></span><br>
+                                    RSSI:<span th:text="${log.routerRssi}"></span>dB<br>
+                                    バッテリー:<span th:text="${log.routerBattery}"></span>%<br>
+                                    FWバージョン:<span th:text="${log.routerFwVersion}"></span>
+                                </td>
+                                <td>
+                                    ID:<span th:text="${log.deviceId}"></span><br>
+                                    RSSI:<span th:text="${log.deviceRssi}"></span>dB
+                                </td>
+                                <td>
+                                    ID:<span th:text="${log.sensorId}"></span><br>
+                                    名前:<span th:text="${log.sensorName}"></span>
+                                </td>
+                                <td th:text="${log.data}"></td>
+                                <td>
+                                    <span th:text="${#temporals.format(log.createdAt, 'yyyy/MM/dd HH:mm:ss')}"></span>
+                                    <span th:if="${log.late}" class="badge badge-danger">遅延</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        <div th:replace="common/fragment::pager(${pager}, '/sensorlog/list?app_id=' + ${queryAppId} + '&router_id=' + ${queryRouterId} + '&device_id=' + ${queryDeviceId} + '&sensor_id=' + ${querySensorId})"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div layout:fragment="scripts">
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const logList = /*[[${logList}]]*/ [];
+        /*]]>*/
+    </script>
+    <script>
+        const searchData = () => {
+            const queryList = []
+
+            const appId = $("#application-id").val()
+            queryList.push(`app_id=${appId}`)
+
+            const routerId = $("#router-id").val()
+            queryList.push(`router_id=${routerId}`)
+
+            const deviceId = $("#device-id").val()
+            queryList.push(`device_id=${deviceId}`)
+
+            const sensorId = $("#sensor-id").val()
+            queryList.push(`sensor_id=${sensorId}`)
+
+            const query = queryList.join("&")
+
+            location.href = `/sensorlog/list?${query}`
+        }
+
+        $('#app-id').change(() => {
+            searchData()
+        })
+        $('#router-id').change(() => {
+            searchData()
+        })
+        $('#device-id').change(() => {
+            searchData()
+        })
+        $('#sensor-id').change(() => {
+            searchData()
+        })
+
+        $('[name=date-button]').each((i, elm) => {
+            if (logList[i].jsonString === null) {
+                return
+            }
+            const formattedJson = prettyPrint(JSON.parse(logList[i].jsonString))
+            $(elm).attr('data-content', formattedJson)
+        })
+    </script>
+
+</div>
+</body>
+</html>

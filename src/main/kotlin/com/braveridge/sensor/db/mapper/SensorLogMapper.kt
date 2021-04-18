@@ -53,7 +53,7 @@ interface SensorLogMapper {
 
     // データ取得
     // 条件：id
-    @Select("SECLCT * FROM sensor_log WHERE id = #{id}")
+    @Select("SELECT * FROM sensor_log WHERE id = #{id}")
     fun findById( id: Long ): SensorLogEntity?
 
     // データ追加

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Insert title here</title>
+</head>
+<body>
+<div id="information" class="alert alert-danger alert-dismissible">
+  <h1>システムに問題が発生しました</h1>
+  <h2 th:text="${status} + ' ' + ${error}">500 Internal Server Error</h2>
+</div>
+<a th:href="@{/}">トップに戻る</a>
+</body>
+</html>

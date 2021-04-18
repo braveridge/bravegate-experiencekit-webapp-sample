@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://mysql57:3306/sensor_sample_db?characterEncoding=UTF-8&useServerPrepStmts=true&useSSL=false
+    username: user
+    password: password
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jpa:
+      database: MYSQL
+      hibernate:
+        ddl-auto : update

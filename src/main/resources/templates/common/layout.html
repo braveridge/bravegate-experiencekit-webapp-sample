@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+  <base href="./">
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <link th:href="@{/favicon.ico}" rel="icon" type="image/x-icon" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link th:href="@{/assets/core-ui/css/style.css}" rel="stylesheet">
+  <link th:href="@{/assets/core-ui/vendors/pace-progress/css/pace.min.css}" rel="stylesheet">
+  <link th:href="@{/assets/css/style.css}" rel="stylesheet">
+  <link th:href="@{/assets/css/vendor/tempusdominus_bootstrap_4.min.css}" rel="stylesheet">
+  <link th:href="@{/assets/css/vendor/simple-sidebar.css}" rel="stylesheet">
+</head>
+<body>
+  <header th:replace="common/header::header"></header>
+
+  <div layout:fragment="contents" th:remove="tag"></div>
+
+  <script th:src="@{/assets/core-ui/vendors/jquery/js/jquery.min.js}"></script>
+  <script th:src="@{/assets/core-ui/vendors/popper.js/js/popper.min.js}"></script>
+  <script th:src="@{/assets/core-ui/vendors/bootstrap/js/bootstrap.min.js}"></script>
+  <script th:src="@{/assets/core-ui/vendors/pace-progress/js/pace.min.js}"></script>
+  <script th:src="@{/assets/core-ui/vendors/perfect-scrollbar/js/perfect-scrollbar.min.js}"></script>
+  <script th:src="@{/assets/core-ui/vendors/@coreui/coreui/js/coreui.min.js}"></script>
+  <script th:src="@{/assets/core-ui/js/popovers.js}"></script>
+  <script th:src="@{/assets/js/vendor/moment_with_locales.js}"></script>
+  <script th:src="@{/assets/js/vendor/tempusdominus_bootstrap_4.min.js}"></script>
+  <script th:src="@{/assets/js/vendor/jquery.floatThead.js}"></script>
+  <script th:src="@{/assets/js/function.js}"></script>
+
+  <div layout:fragment="scripts" th:remove="tag"></div>
+
+  <div th:replace="common/footer::footer"></div>
+</body>
+</html>
