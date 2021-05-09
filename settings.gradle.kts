@@ -1,1 +1,1 @@
-rootProject.name = "bravegate-sensor-sample"
+rootProject.name = "bravegate-experiencekit-sample"

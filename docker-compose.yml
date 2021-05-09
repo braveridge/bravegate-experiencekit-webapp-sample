@@ -35,7 +35,7 @@ services:
     environment:
       TZ: Asia/Tokyo
     tty: true
-    command: sh -c "java -jar -Dspring.profiles.active=dev /app/libs/bravegate-sensor-sample-0.0.1-SNAPSHOT.jar"
+    command: sh -c "java -jar -Dspring.profiles.active=dev /app/libs/bravegate-experiencekit-sample-0.0.1-SNAPSHOT.jar"
 volumes:
   mysql_db:
     driver: local
